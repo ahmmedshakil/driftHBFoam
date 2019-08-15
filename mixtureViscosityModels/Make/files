@@ -1,0 +1,8 @@
+mixtureViscosityModel/mixtureViscosityModel.C
+mixtureViscosityModel/mixtureViscosityModelNew.C
+plastic/plastic.C
+BinghamPlastic/BinghamPlastic.C
+slurry/slurry.C
+HerschelBuckley/HerschelBuckley.C
+
+LIB = $(FOAM_USER_LIBBIN)/libmydriftFluxHBTransportModels
