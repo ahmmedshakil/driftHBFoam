@@ -115,7 +115,7 @@ Foam::mixtureViscosityModels::HerschelBuckley::mu
 
 
 	//-temporary dispersedPhase viscosity
-	volScalarField muHB
+/*	volScalarField muHB
 
 	(
 		min
@@ -124,20 +124,25 @@ Foam::mixtureViscosityModels::HerschelBuckley::mu
             		(tau0_ + k_*rtone*pow(tone*strainRate, n_))
            		/(max(strainRate, dimensionedScalar ("VSMALL", dimless/dimTime, VSMALL)))
         	)
-	);
+	);*/
 
 
         //-plastic viscosity based on the continuous viscosity
-        volScalarField mup(plastic::mu(muc));
+        //-   volScalarField mup(plastic::mu(muc));
 
            
 
     return min
     	   	(
-        		muHB
-      			+ mup,
 
-        		muMax_
+			mu0_,
+            		(tau0_ + k_*rtone*pow(tone*strainRate, n_))
+           		/(max(strainRate, dimensionedScalar ("VSMALL", dimless/dimTime, VSMALL)))
+
+        	//	muHB
+      		//	+ mup,
+		//
+        	//	muMax_
     		);
 }
 

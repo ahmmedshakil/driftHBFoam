@@ -29,8 +29,10 @@ Description
 
      strain-rate = sqrt(2.0)*mag(symm(grad(U)))
 
-     Shakil: I am adding HB model considering the constant yield stress at this version
-	     similar to the OpenFOAM default version
+     Shakil: I am adding HB model considering the constant yield stress 
+     Ref.: Radhakrishnan et al., Rheological characterisation of concentrated domestic slurry
+           Water Research (141), 2018
+           Dapelo et al., Advances in Engineering Software (117), 2018
 
 	     Parameters I need as input:
 	     mu0  = viscosity at zero shear-rate = [1 -1 -1 0 0 0 0]
