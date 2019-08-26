@@ -816,5 +816,6 @@ alphaEqn.H \
 UEqn.H \
 pEqn.H \
 $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/continuityErrs.H \
+cEqn.H \
 
 

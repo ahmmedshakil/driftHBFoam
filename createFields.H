@@ -132,3 +132,66 @@ mesh.setFluxRequired(alpha1.name());
 tmp<surfaceScalarField> talphaPhiCorr0;
 
 #include "createMRF.H"
+
+
+//-Adding properties for the tracer equations to be solved
+
+Info<< "Reading field C\n" << endl;
+
+    volScalarField C
+    (
+        IOobject
+        (
+            "C",
+            runTime.timeName(),
+            mesh,
+            IOobject::MUST_READ,
+            IOobject::AUTO_WRITE
+        ),
+        mesh
+    );
+
+    Info<< "Reading diffusivity\n" << endl;
+
+    volScalarField DT
+    (
+        IOobject
+        (
+            "DT",
+            runTime.timeName(),
+            mesh,
+            IOobject::MUST_READ,
+            IOobject::AUTO_WRITE
+        ),
+        mesh
+    );
+
+    Info<< "Reading transportProperties\n" << endl;
+
+    IOdictionary transportProperties
+    (
+        IOobject
+        (
+            "transportProperties",
+            runTime.constant(),
+            mesh,
+            IOobject::MUST_READ,
+            IOobject::NO_WRITE
+        )
+    );
+
+    Info<< "Reading Schmidt Number\n" << endl;
+
+    dimensionedScalar Sc
+    (
+        transportProperties.lookup("Sc")
+    );
+
+
+    Info<< "Reading Molecular Diffusivity\n" << endl;
+
+    dimensionedScalar Dm
+    (
+        transportProperties.lookup("Dm")
+    );
+

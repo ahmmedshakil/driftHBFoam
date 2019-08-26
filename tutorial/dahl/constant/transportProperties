@@ -1,0 +1,65 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  5                                     |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      transportProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Dm              Dm [0 2 -1 0 0 0 0] 2e-9;
+Sc              Sc [0 0 0 0 0 0 0] 0.7;
+			
+phases (sludge water);
+
+sludge
+{
+    transportModel  HerschelBuckley;
+
+    "(plastic|HerschelBuckley)Coeffs"
+    {
+        coeff       	0.00023143;
+        exponent    	179.26;
+
+        BinghamCoeff    0.0005966;
+        BinghamExponent 1050.8;
+        BinghamOffset   0;
+        
+   	mu0 		1;		//-viscosity at the zero shear kg/ms
+	tau0 		1;		//-yield stress kg/ms2
+        k   		1e-5;		//-k  is the ‘Consistancy Index’ with units m2/s
+        n   		1;		//-Power/Flow Index
+
+        muMax          10;
+    }
+
+    rho         1996;
+}
+
+water
+{
+    transportModel  Newtonian;
+
+    nu              1.7871e-06;
+    rho             996;
+}
+
+relativeVelocityModel simple;
+
+"(simple|general)Coeffs"
+{
+    V0              (0 -0.002198 0);
+    a               285.84;
+    a1              0.1;
+    residualAlpha   0;
+}
+
+
+// ************************************************************************* //
