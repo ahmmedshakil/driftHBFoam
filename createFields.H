@@ -34,6 +34,7 @@ incompressibleTwoPhaseInteractingMixture mixture(U, phi);
 
 volScalarField& alpha1(mixture.alpha1());
 
+
 // Mixture density
 volScalarField rho
 (
@@ -46,6 +47,33 @@ volScalarField rho
         IOobject::NO_WRITE
     ),
     mixture.rho()
+);
+
+// Mixture viscosity
+volScalarField muMix
+(
+    IOobject
+    (
+        "muMix",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mixture.mu()
+);
+
+volScalarField strRate
+(
+    IOobject
+    (
+        "strRate",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    Foam::sqrt(2.0)*mag(symm(fvc::grad(U)))
 );
 
 // Mass flux

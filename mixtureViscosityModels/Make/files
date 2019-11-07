@@ -3,6 +3,7 @@ mixtureViscosityModel/mixtureViscosityModelNew.C
 plastic/plastic.C
 BinghamPlastic/BinghamPlastic.C
 slurry/slurry.C
-HerschelBuckley/HerschelBuckley.C
+HBdefault/HBdefault.C
+HBexperiment/HBexperiment.C
 
 LIB = $(FOAM_USER_LIBBIN)/libmydriftFluxHBTransportModels

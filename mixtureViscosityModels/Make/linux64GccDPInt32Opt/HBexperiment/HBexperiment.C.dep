@@ -1,7 +1,6 @@
-$(OBJECTS_DIR)/HerschelBuckley/HerschelBuckley.C.dep: \
-HerschelBuckley/HerschelBuckley.C \
-HerschelBuckley/HerschelBuckley.H \
-lnInclude/plastic.H \
+$(OBJECTS_DIR)/HBexperiment/HBexperiment.C.dep: \
+HBexperiment/HBexperiment.C \
+HBexperiment/HBexperiment.H \
 lnInclude/mixtureViscosityModel.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/dictionary.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/entry.H \

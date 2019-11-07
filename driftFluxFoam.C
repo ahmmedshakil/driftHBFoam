@@ -105,8 +105,12 @@ int main(int argc, char *argv[])
                 turbulence->correct();
             }
         }
-        
-        #include "cEqn.H"
+//----------------printing to check the information
+        muMix = mixture.mu();		//-printing of the muMixture
+        strRate = Foam::sqrt(2.0)*mag(symm(fvc::grad(U)));
+//--------------------------------------------------
+
+        #include "cEqn.H"		//-transportEquations
 
         runTime.write();
 

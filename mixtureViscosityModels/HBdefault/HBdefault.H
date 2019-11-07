@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2014-2015 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2014 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -22,95 +22,88 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::mixtureViscosityModels::HerschelBuckley
+    Foam::mixtureViscosityModels::HBdefault
 
 Description
-     Viscosity correction model for Herschel Buckley plastics.
-
-     strain-rate = sqrt(2.0)*mag(symm(grad(U)))
-
-     Shakil: I am adding HB model considering the constant yield stress 
-     Ref.: Radhakrishnan et al., Rheological characterisation of concentrated domestic slurry
-           Water Research (141), 2018
-           Dapelo et al., Advances in Engineering Software (117), 2018
-
-	     Parameters I need as input:
-	     mu0  = viscosity at zero shear-rate = [1 -1 -1 0 0 0 0]
-	     tau0 = yield stress                 = [1 -1 -2 0 0 0 0]
-             k   = consistency index		 = [1 -1 -1 0 0 0 0]
-             n   = dimensionless
-                 
-	     
+     Viscosity correction model for a generic power-law HBdefault.
 
 SourceFiles
-    HerschelBuckley.C
-
+    HBdefault.C
+Default Herschel-Bulkley model where ty and K is independent of alpha
 \*---------------------------------------------------------------------------*/
 
-#ifndef HerschelBulkley_H
-#define HerschelBulkley_H
+#ifndef HBdefault_H
+#define HBdefault_H
 
-#include "plastic.H"
+#include "mixtureViscosityModel.H"
+#include "dimensionedScalar.H"
+#include "volFields.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
+
+class incompressibleTwoPhaseInteractingMixture;
+
 namespace mixtureViscosityModels
 {
 
 /*---------------------------------------------------------------------------*\
-                           Class BinghamPlastic Declaration
+                           Class HBdefault Declaration
 \*---------------------------------------------------------------------------*/
 
-class HerschelBulkley
+class HBdefault
 :
-    public plastic
+    public mixtureViscosityModel
 {
 protected:
 
     // Protected data
 
+        //- Dictionary
+        dictionary HBdefaultCoeffs_;
+
 	//-consistency index
 	dimensionedScalar k_;
-	
-	//-power/flow index
-        dimensionedScalar n_;
-	
-	//-yield stress        
-	dimensionedScalar tau0_;
-        
-	//-viscosity at zero shear-rate
-	dimensionedScalar mu0_;
-      
-        //- Velocity
-        const volVectorField& U_;
 
-	//-for printing mu
-	//const volScalarField& muMix;
-  
+	//-flow/power-law index
+	dimensionedScalar n_;
+
+	//-Yield-stress
+	dimensionedScalar tau0_;
+	
+	//-Viscosity at the zero shear rate
+	dimensionedScalar mu0_;
+
+        //- phase fraction
+        const volScalarField& alpha_;
+
+	//-velocity field 
+	const volVectorField& U_;
 
 
 public:
 
     //- Runtime type information
-    TypeName("HerschelBulkley");
+    TypeName("HBdefault");
 
 
     // Constructors
 
         //- Construct from components
-        HerschelBulkley
+        HBdefault
         (
             const word& name,
             const dictionary& viscosityProperties,
             const volVectorField& U,
-            const surfaceScalarField& phi
+            const surfaceScalarField& phi,
+            const word modelName=typeName
         );
 
 
     //- Destructor
-    ~HerschelBulkley()
+    ~HBdefault()
     {}
 
 

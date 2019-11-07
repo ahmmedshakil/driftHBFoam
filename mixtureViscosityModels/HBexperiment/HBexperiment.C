@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2014-2015 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2014-2017 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -23,7 +23,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "HerschelBuckley.H"
+#include "HBexperiment.H"
 #include "addToRunTimeSelectionTable.H"
 #include "fvcGrad.H"
 
@@ -33,12 +33,12 @@ namespace Foam
 {
 namespace mixtureViscosityModels
 {
-    defineTypeNameAndDebug(HerschelBulkley, 0);
+    defineTypeNameAndDebug(HBexperiment, 0);
 
     addToRunTimeSelectionTable
     (
         mixtureViscosityModel,
-        HerschelBulkley,
+        HBexperiment,
         dictionary
     );
 }
@@ -47,73 +47,73 @@ namespace mixtureViscosityModels
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::mixtureViscosityModels::HerschelBulkley::HerschelBulkley
+Foam::mixtureViscosityModels::HBexperiment::HBexperiment
 (
     const word& name,
     const dictionary& viscosityProperties,
     const volVectorField& U,
-    const surfaceScalarField& phi
+    const surfaceScalarField& phi,
+    const word modelName
 )
 :
-    plastic(name, viscosityProperties, U, phi, typeName),
+    mixtureViscosityModel(name, viscosityProperties, U, phi),
+    HBexperimentCoeffs_(viscosityProperties.optionalSubDict(modelName +"Coeffs")),
 
-    k_
+    k_ 
     (
-        "k",
-        dimensionSet(1, -1, -1, 0, 0),
-        plasticCoeffs_
+    	"k",
+         dimensionSet(1, -1, -1, 0, 0),
+         HBexperimentCoeffs_.lookup("k")	 
     ),
-
-
     n_
     (
-        "n",
-        dimless,
-        plasticCoeffs_
+     	"n",
+	dimless,
+	HBexperimentCoeffs_.lookup("n")
     ),
-
     tau0_
     (
         "tau0",
-        dimensionSet(1, -1, -2, 0, 0),
-        plasticCoeffs_
+	dimensionSet(1, -1, -2, 0, 0),
+	HBexperimentCoeffs_.lookup("tau0")
     ),
-
+    tauCoeffs_
+    (
+        "tauCoeffs",
+	dimensionSet(1, -1, -2, 0, 0),
+	HBexperimentCoeffs_.lookup("tauCoeffs")
+    ),
+    tauExpo_
+    (
+     	"tauExpo",
+	dimless,
+	HBexperimentCoeffs_.lookup("tauExpo")
+    ),
     mu0_
     (
-        "mu0",
+    	"mu0",
         dimensionSet(1, -1, -1, 0, 0),
-        plasticCoeffs_
+        HBexperimentCoeffs_.lookup("mu0")	
     ),
-
-    
-    U_(U)
-   /* muMix
+    alpha_
     (
-     IOobject
-     (
-      name,
-      U_.time().timeName(),
-      U_.db(),
-      IOobject::NO_READ,
-      IOobject::AUTO_WRITE
-      
-      ),
-     mu(const volScalarField& muc)
-     )*/
-
+        U.mesh().lookupObject<volScalarField>
+        (
+            IOobject::groupName
+            (
+                viscosityProperties.lookupOrDefault<word>("alpha", "alpha"),
+                viscosityProperties.dictName()
+            )
+        )
+    ),
+    U_(U)
 {}
 
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
-//-mixture mu----------------------
-
 Foam::tmp<Foam::volScalarField>
-Foam::mixtureViscosityModels::HerschelBulkley::mu
-(
-    const volScalarField& muc
-) const
+Foam::mixtureViscosityModels::HBexperiment::mu(const volScalarField& muc) const
 {
 
 	//-calculating the strain-rate
@@ -122,57 +122,44 @@ Foam::mixtureViscosityModels::HerschelBulkley::mu
 		sqrt(2.0)*mag(symm(fvc::grad(U_)))
 	);
 
+	//-Yield stress calculation based on the experiment data
+        volScalarField tauy
+        (
+		tauCoeffs_*exp(tauExpo_*alpha_)
+	);
+
 
 	 //-rtone is for dimensioned settings
 	 dimensionedScalar tone("tone", dimTime, 1.0);
          dimensionedScalar rtone("rtone", dimless/dimTime, 1.0);
 
-
-	//-temporary dispersedPhase viscosity
-/*	volScalarField muHB
-
-	(
-		min
-        	(
-            		mu0_,
-            		(tau0_ + k_*rtone*pow(tone*strainRate, n_))
-           		/(max(strainRate, dimensionedScalar ("VSMALL", dimless/dimTime, VSMALL)))
-        	)
-	);*/
-
-
-        //-plastic viscosity based on the continuous viscosity
-        //-   volScalarField mup(plastic::mu(muc));
-
-           
-       //-when zero-strain rate it will use the viscosity of mu0
-    return min
+         return min
     	   	(
 
 			mu0_,
-            		(tau0_ + k_*rtone*pow(tone*strainRate, n_))
+            		(tauy + k_*rtone*pow(tone*strainRate, n_))
            		/(max(strainRate, dimensionedScalar ("VSMALL", dimless/dimTime, VSMALL)))
 
-        	//	muHB
-      		//	+ mup,
-		//
-        	//	muMax_
     		);
 }
 
 
-bool Foam::mixtureViscosityModels::HerschelBulkley::read
+
+bool Foam::mixtureViscosityModels::HBexperiment::read
 (
     const dictionary& viscosityProperties
 )
 {
-    plastic::read(viscosityProperties);
+    mixtureViscosityModel::read(viscosityProperties);
 
-    plasticCoeffs_.lookup("k") >> k_;		//-reading k
-    plasticCoeffs_.lookup("tau0") >> tau0_;
-    plasticCoeffs_.lookup("mu0") >> mu0_;
-    plasticCoeffs_.lookup("n") >> n_;
+    HBexperimentCoeffs_ = viscosityProperties.optionalSubDict(typeName + "Coeffs");
 
+    HBexperimentCoeffs_.lookup("k") >> k_;
+    HBexperimentCoeffs_.lookup("n") >> n_;
+    HBexperimentCoeffs_.lookup("tau0") >> tau0_;
+    HBexperimentCoeffs_.lookup("tauCoeffs") >> tauCoeffs_;
+    HBexperimentCoeffs_.lookup("tauExpo") >> tauExpo_;
+    HBexperimentCoeffs_.lookup("mu0") >> mu0_;
     return true;
 }
 
