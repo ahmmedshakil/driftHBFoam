@@ -29,7 +29,8 @@ Description
 
 SourceFiles
     HBexperiment.C
-Default Herschel-Bulkley model where ty and K is independent of alpha
+Default Herschel-Bulkley model where ty and K is dependent on alpha
+ty = f(alpha) and K = f(alpha), mu = f(alpha, strRate)
 \*---------------------------------------------------------------------------*/
 
 #ifndef HBexperiment_H
