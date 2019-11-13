@@ -1,1 +1,1 @@
-../HerschelBuckley/HerschelBuckley.H
+../org.HerschelBuckley/HerschelBuckley.H

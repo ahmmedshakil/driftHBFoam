@@ -89,6 +89,18 @@ Foam::mixtureViscosityModels::HBexperiment::HBexperiment
 	dimless,
 	HBexperimentCoeffs_.lookup("tauExpo")
     ),
+    kCoeffs_
+    (
+        "kCoeffs",
+	dimensionSet(1, -1, -1, 0, 0),
+	HBexperimentCoeffs_.lookup("kCoeffs")
+    ),
+    kExpo_
+    (
+     	"kExpo",
+	dimless,
+	HBexperimentCoeffs_.lookup("kExpo")
+    ),
     mu0_
     (
     	"mu0",
@@ -128,6 +140,11 @@ Foam::mixtureViscosityModels::HBexperiment::mu(const volScalarField& muc) const
 		tauCoeffs_*exp(tauExpo_*alpha_)
 	);
 
+        //-Consistency K calculation based on the experiment data
+        volScalarField ky
+        (
+		kCoeffs_*exp(kExpo_*alpha_)
+	);
 
 	 //-rtone is for dimensioned settings
 	 dimensionedScalar tone("tone", dimTime, 1.0);
@@ -137,7 +154,7 @@ Foam::mixtureViscosityModels::HBexperiment::mu(const volScalarField& muc) const
     	   	(
 
 			mu0_,
-            		(tauy + k_*rtone*pow(tone*strainRate, n_))
+            		(tauy + ky*rtone*pow(tone*strainRate, n_))
            		/(max(strainRate, dimensionedScalar ("VSMALL", dimless/dimTime, VSMALL)))
 
     		);
@@ -159,6 +176,8 @@ bool Foam::mixtureViscosityModels::HBexperiment::read
     HBexperimentCoeffs_.lookup("tau0") >> tau0_;
     HBexperimentCoeffs_.lookup("tauCoeffs") >> tauCoeffs_;
     HBexperimentCoeffs_.lookup("tauExpo") >> tauExpo_;
+    HBexperimentCoeffs_.lookup("kCoeffs") >> kCoeffs_;
+    HBexperimentCoeffs_.lookup("kExpo") >> kExpo_;
     HBexperimentCoeffs_.lookup("mu0") >> mu0_;
     return true;
 }

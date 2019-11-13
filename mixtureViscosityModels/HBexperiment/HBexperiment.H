@@ -80,6 +80,12 @@ protected:
 	//-Yield stress exponent
 	dimensionedScalar tauExpo_;
 
+	//-Consistency Coeffs
+	dimensionedScalar kCoeffs_;
+
+	//-Consistency exponent
+	dimensionedScalar kExpo_;
+
 	//-Viscosity at the zero shear rate
 	dimensionedScalar mu0_;
 	
