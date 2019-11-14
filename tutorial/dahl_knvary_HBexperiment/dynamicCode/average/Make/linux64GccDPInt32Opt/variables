@@ -1,0 +1,1 @@
+LIB = $(PWD)/../platforms/$(WM_OPTIONS)/lib/libaverage_c8ec27a90dcc8f0af0923ba8ed27a3ec5afe1243

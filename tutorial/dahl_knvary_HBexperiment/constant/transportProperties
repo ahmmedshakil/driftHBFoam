@@ -25,14 +25,14 @@ sludge
 
     "(HBexperiment)Coeffs"
     {
-        k	       	0.01;
-        n	       	0.6;
-        tau0	    	6e-4;
-        tauCoeffs	5.90e-4;	//-tauy= tauCoeffs*exp(tauExpo*alpha)
-        tauExpo		1050.8;
+        k	       	0.01;		//-NOT USED: just kept as dummy
+        n	       	0.7;		
+        tau0	    	6e-4;		//-NOT USED: just kept as dummy
+        tauCoeffs	0.142732;	//-tauy= tauCoeffs*exp(tauExpo*alpha)
+        tauExpo		73.69286;
         kCoeffs		0.003816;	//-k= kCoeffs*exp(kExpo*alpha)
         kExpo		71.07006;
-        mu0	        1.8e-3;
+        mu0	        0.3;
        
     }
 
