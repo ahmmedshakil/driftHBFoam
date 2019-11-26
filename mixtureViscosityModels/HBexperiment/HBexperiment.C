@@ -118,6 +118,7 @@ Foam::mixtureViscosityModels::HBexperiment::HBexperiment
             )
         )
     ),
+    checkAlpha_(checkParameters()),		//-checking the parameter
     U_(U)
 {}
 
@@ -135,10 +136,15 @@ Foam::mixtureViscosityModels::HBexperiment::mu(const volScalarField& muc) const
 	);
 
 	//-Yield stress calculation based on the experiment data
-        volScalarField tauy
+       /* volScalarField tauy
         (
 		tauCoeffs_*exp(tauExpo_*alpha_)
+	);*/
+	volScalarField tauy		//-if alpha->0, tauy=0, tauCoeffs_= 4.78e7, tauExpo =5.5542
+        (
+		tauCoeffs_*pow(max(alpha_, scalar(0.0)),tauExpo_)
 	);
+
 
         //-Consistency K calculation based on the experiment data
         volScalarField ky
@@ -149,6 +155,14 @@ Foam::mixtureViscosityModels::HBexperiment::mu(const volScalarField& muc) const
 	 //-rtone is for dimensioned settings
 	 dimensionedScalar tone("tone", dimTime, 1.0);
          dimensionedScalar rtone("rtone", dimless/dimTime, 1.0);
+         
+
+	 //------------------for switching to water----------------//
+	// if (mag(alpha_) == 0.0)
+	//    {
+	//	n_ = ONE;
+	//	ky = water;	//-viscosity of water
+	//    }
 
          return min
     	   	(
@@ -160,7 +174,23 @@ Foam::mixtureViscosityModels::HBexperiment::mu(const volScalarField& muc) const
     		);
 }
 
+bool Foam::mixtureViscosityModels::HBexperiment::checkParameters()
+{
+     	 dimensionedScalar zero("zero", dimless, 0);
+         dimensionedScalar ONE("ONE", dimless, 1);
+         dimensionedScalar water("water", dimensionSet(1, -1, -1, 0, 0), 0.001);
+	 
+	 forAll(alpha_, cellI)
+		{
+			if(alpha_[cellI] == 0.0)
+			{
+			//	ky = water;
+				n_ = ONE;
+			}
+		}
 
+	 return true;
+}
 
 bool Foam::mixtureViscosityModels::HBexperiment::read
 (

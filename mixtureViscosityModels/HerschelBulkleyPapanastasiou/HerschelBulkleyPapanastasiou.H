@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2014 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -22,21 +22,32 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::mixtureViscosityModels::HBexperiment
+    Foam::viscosityModels::HerschelBulkleyPapanastasiou
 
 Description
-     Viscosity correction model for a generic power-law HBexperiment.
+     Herschel-Bulkley non-Newtonian viscosity model.
 
 SourceFiles
-    HBexperiment.C
-Default Herschel-Bulkley model where ty and K is dependent on alpha
-ty = f(alpha) and K = f(alpha), mu = f(alpha, strRate)
+    HerschelBulkleyPapanastasiou.C
+Example
+
+transportModel  HerschelBulkleyPapanastasiou;
+HerschelBulkleyPapanastasiouCoeffs
+{
+    k               k		[ 0 2 -1 0 0 0 0 ]	1;
+	n				n		[ 0 0  0 0 0 0 0 ]	0.5;
+	tau0			tau0	[ 0 2 -2 0 0 0 0 ]	1.0; 
+	nu0				nu0		[ 0 2 -1 0 0 0 0 ]	1e4; 
+	m				m		[ 0 0 0 0 0 0 0 ]	1e2; 
+	sr0				sr0		[0 0 -1 0 0 0 0]	 1.0;  // Relative shear rate. You can set it up equal to one.
+}
+
 \*---------------------------------------------------------------------------*/
 
-#ifndef HBexperiment_H
-#define HBexperiment_H
+#ifndef HerschelBulkleyPapanastasiou_H
+#define HerschelBulkleyPapanastasiou_H
 
-#include "mixtureViscosityModel.H"
+#include "viscosityModel.H"
 #include "dimensionedScalar.H"
 #include "volFields.H"
 
@@ -44,95 +55,79 @@ ty = f(alpha) and K = f(alpha), mu = f(alpha, strRate)
 
 namespace Foam
 {
-
-class incompressibleTwoPhaseInteractingMixture;
-
-namespace mixtureViscosityModels
+namespace viscosityModels
 {
 
 /*---------------------------------------------------------------------------*\
-                           Class HBexperiment Declaration
+                           Class HerschelBulkleyPapanastasiou Declaration
 \*---------------------------------------------------------------------------*/
 
-class HBexperiment
+class HerschelBulkleyPapanastasiou
 :
-    public mixtureViscosityModel
+    public viscosityModel
 {
-protected:
+    // Private data
 
-    // Protected data
+        dictionary HerschelBulkleyPapanastasiouCoeffs_;
 
-        //- Dictionary
-        dictionary HBexperimentCoeffs_;
+        dimensionedScalar k_;
+        dimensionedScalar n_;
+        dimensionedScalar tau0_;
+        dimensionedScalar nu0_;
+        dimensionedScalar m_;
+        dimensionedScalar sr0_; // Relative shear rate. You can set it up equal to one.
 
-	//-consistency index
-	dimensionedScalar k_;
-
-	//-flow/power-law index
-	dimensionedScalar n_;
-
-	//-Yield-stress
-	dimensionedScalar tau0_;
-	
-        //-Yield stress Coeffs
-	dimensionedScalar tauCoeffs_;
-
-	//-Yield stress exponent
-	dimensionedScalar tauExpo_;
-
-	//-Consistency Coeffs
-	dimensionedScalar kCoeffs_;
-
-	//-Consistency exponent
-	dimensionedScalar kExpo_;
-
-	//-Viscosity at the zero shear rate
-	dimensionedScalar mu0_;
-               
-        //- phase fraction
-        const volScalarField& alpha_;
-
-	//-bool parameter
-         bool checkAlpha_;
-
-	//-velocity field 
-	const volVectorField& U_;
+        volScalarField nu_;
 
 
-    
-	//-Private member functions
-	bool checkParameters();
+    // Private Member Functions
+
+        //- Calculate and return the laminar viscosity
+        tmp<volScalarField> calcNu() const;
 
 
 public:
 
     //- Runtime type information
-    TypeName("HBexperiment");
+    TypeName("HerschelBulkleyPapanastasiou");
 
 
     // Constructors
 
         //- Construct from components
-        HBexperiment
+        HerschelBulkleyPapanastasiou
         (
             const word& name,
             const dictionary& viscosityProperties,
             const volVectorField& U,
-            const surfaceScalarField& phi,
-            const word modelName=typeName
+            const surfaceScalarField& phi
         );
 
 
     //- Destructor
-    ~HBexperiment()
+    ~HerschelBulkleyPapanastasiou()
     {}
 
 
     // Member Functions
 
-        //- Return the mixture viscosity
-        //  given the viscosity of the continuous phase
-        tmp<volScalarField> mu(const volScalarField& muc) const;
+        //- Return the laminar viscosity
+        tmp<volScalarField> nu() const
+        {
+            return nu_;
+        }
+
+        //- Return the laminar viscosity for patch
+        tmp<scalarField> nu(const label patchi) const
+        {
+            return nu_.boundaryField()[patchi];
+        }
+
+        //- Correct the laminar viscosity
+        void correct()
+        {
+            nu_ = calcNu();
+        }
 
         //- Read transportProperties dictionary
         bool read(const dictionary& viscosityProperties);
@@ -141,7 +136,7 @@ public:
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-} // End namespace mixtureViscosityModels
+} // End namespace viscosityModels
 } // End namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
