@@ -51,7 +51,7 @@
         fvScalarMatrix alpha1Eqn
         (
             fvm::ddt(alpha1) - fvc::ddt(alpha1)
-          - fvm::laplacian(turbulence->nut(), alpha1)
+          - fvm::laplacian(turbulence->nut()+dComp, alpha1)
         );
 
         alpha1Eqn.solve(mesh.solver("alpha1Diffusion"));

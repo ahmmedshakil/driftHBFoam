@@ -194,6 +194,7 @@ Info<< "Reading field C\n" << endl;
         mesh
     );
 
+
     Info<< "Reading transportProperties\n" << endl;
 
     IOdictionary transportProperties
@@ -222,4 +223,54 @@ Info<< "Reading field C\n" << endl;
     (
         transportProperties.lookup("Dm")
     );
+
+
+//------------------------Compression Terms
+    volScalarField dComp
+    (
+        IOobject
+        (
+            "dComp",
+            runTime.timeName(),
+            mesh,
+            IOobject::NO_READ,
+            IOobject::NO_WRITE
+        ),
+        mesh,
+	dimensionedScalar("dComp", dimensionSet(0,2,-1,0,0,0,0), 0.0)		//-initial value
+    );
+
+    Info<< "Reading betaComp\n" << endl;	//-unit must be kg/m3
+
+    dimensionedScalar betaComp
+    (
+        transportProperties.lookup("betaComp")
+    );
+
+   Info<< "Reading lamdaComp\n" << endl;	//-unit must be kg/ms2
+
+    dimensionedScalar lambdaComp
+    (
+        transportProperties.lookup("lambdaComp")
+    );
+
+    Info<< "Reading Critical volume-fraction\n" << endl;	//-unit must be unitless
+
+    dimensionedScalar alphaComp
+    (
+        transportProperties.lookup("alphaComp")
+    );
+    //----magnitude of g for calculating the compression term
+    dimensionedScalar gComp
+    (
+        transportProperties.lookup("gComp")
+    );
+
+   //----Dummy term so that I keep OF happy with the dimensions
+    dimensionedScalar dummyComp
+    (
+        transportProperties.lookup("dummyComp")
+    );
+
+
 

@@ -87,6 +87,7 @@ int main(int argc, char *argv[])
             #include "alphaControls.H"
 
             UdmModel.correct();
+            #include "dComp.H"
 
             #include "alphaEqnSubCycle.H"
 
