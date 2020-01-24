@@ -234,7 +234,7 @@ Info<< "Reading field C\n" << endl;
             runTime.timeName(),
             mesh,
             IOobject::NO_READ,
-            IOobject::NO_WRITE
+            IOobject::AUTO_WRITE
         ),
         mesh,
 	dimensionedScalar("dComp", dimensionSet(0,2,-1,0,0,0,0), 0.0)		//-initial value
